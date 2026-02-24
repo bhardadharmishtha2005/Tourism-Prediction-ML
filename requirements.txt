@@ -1,5 +1,5 @@
-pandas,
-seaborn,
-scikit-learn,
-scipy,
+pandas
+seaborn
 matplotlib
+scikit-learn
+scipy
