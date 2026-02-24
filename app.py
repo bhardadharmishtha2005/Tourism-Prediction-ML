@@ -66,4 +66,3 @@ if st.button("✨ Predict Best Visit Mode"):
         st.error("Model not loaded. Cannot predict.")
 
 st.markdown("---")
-st.caption("Data Science Project - Tourism Behavior Analysis")
