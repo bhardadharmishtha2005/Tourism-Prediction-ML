@@ -57,25 +57,23 @@ else:
 
 import numpy as np
 
+import numpy as np
+
 # 5. PREDICTION LOGIC
 if st.button("✨ Predict"):
     if model:
         try:
-            # 1. Put the numbers in the order the model expects. 
-            # Based on your previous error, this is the most likely order:
-            # [Continent, Country, AttractionType, VisitMode, VisitMonth, VisitYear, Rating]
-            
+            # We are sending exactly 6 features now
             feature_values = [
-                1,       # Continent
-                1,       # Country
-                1,       # AttractionType
-                1,       # VisitMode
-                6,       # VisitMonth
-                2024,    # VisitYear
-                float(rating) # Rating (The slider value)
+                1,             # 1. Continent
+                1,             # 2. Country
+                1,             # 3. VisitMode 
+                6,             # 4. VisitMonth
+                2024,          # 5. VisitYear
+                float(rating)  # 6. Rating (from slider)
             ]
             
-            # 2. Convert to a simple array (This removes the 'Name' error)
+            # Convert to a simple array to bypass naming issues
             final_features = np.array([feature_values])
             
             # 3. Predict
@@ -83,9 +81,10 @@ if st.button("✨ Predict"):
             
             st.balloons()
             st.success("✅ Prediction Successful!")
-            st.metric(label="Result", value=str(prediction[0]))
+            st.metric(label="Predicted Result", value=str(prediction[0]))
             
         except Exception as e:
-            st.error(f"Final Attempt Error: {e}")
+            st.error(f"Almost there! Error: {e}")
+            st.write("The model saw 6 features during training. We are now sending 6.")
 
 st.markdown("---")
