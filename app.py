@@ -59,15 +59,15 @@ else:
 if st.button("✨ Predict"):
     if model:
         try:
-            # We must include ALL 7 columns in the EXACT order the model remembers
+            # We are re-ordering based on the error: Rating first, then the others
             input_dict = {
-                'Continent': [1],        # Column 0
-                'Country': [1],          # Column 1
-                'AttractionType': [1],   # Column 2 (THIS WAS MISSING)
-                'VisitMode': [1],        # Column 3
-                'VisitMonth': [6],       # Column 4
-                'VisitYear': [2024],     # Column 5
-                'Rating': [rating]       # Column 6
+                'Rating': [rating],       # Moved to front
+                'AttractionType': [1],   
+                'Continent': [1],        
+                'Country': [1],          
+                'VisitMode': [1],        
+                'VisitMonth': [6],       
+                'VisitYear': [2024]
             }
             
             # Convert to DataFrame
@@ -78,10 +78,12 @@ if st.button("✨ Predict"):
             
             st.balloons()
             st.success(f"✅ Prediction Successful!")
-            st.metric(label="Result", value=str(prediction[0]))
+            st.metric(label="Predicted Output", value=str(prediction[0]))
             
         except Exception as e:
-            st.error(f"Logic Error: {e}")
-            st.write("The model needs 7 columns. We sent:", len(input_dict))
+            st.error(f"Mismatch Error: {e}")
+            # This will show us the order the model is begging for
+            import traceback
+            st.write("Check your Colab X_train.columns list!")
 
 st.markdown("---")
