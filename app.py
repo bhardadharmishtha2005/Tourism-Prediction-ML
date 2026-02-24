@@ -55,35 +55,37 @@ else:
     rating = st.slider("Expected Rating", 1, 5, 4)
     season = "Summer"
 
+import numpy as np
+
 # 5. PREDICTION LOGIC
 if st.button("✨ Predict"):
     if model:
         try:
-            # We are re-ordering based on the error: Rating first, then the others
-            input_dict = {
-                'Rating': [rating],       # Moved to front
-                'AttractionType': [1],   
-                'Continent': [1],        
-                'Country': [1],          
-                'VisitMode': [1],        
-                'VisitMonth': [6],       
-                'VisitYear': [2024]
-            }
+            # 1. Put the numbers in the order the model expects. 
+            # Based on your previous error, this is the most likely order:
+            # [Continent, Country, AttractionType, VisitMode, VisitMonth, VisitYear, Rating]
             
-            # Convert to DataFrame
-            input_df = pd.DataFrame(input_dict)
+            feature_values = [
+                1,       # Continent
+                1,       # Country
+                1,       # AttractionType
+                1,       # VisitMode
+                6,       # VisitMonth
+                2024,    # VisitYear
+                float(rating) # Rating (The slider value)
+            ]
             
-            # Make the prediction
-            prediction = model.predict(input_df)
+            # 2. Convert to a simple array (This removes the 'Name' error)
+            final_features = np.array([feature_values])
+            
+            # 3. Predict
+            prediction = model.predict(final_features)
             
             st.balloons()
-            st.success(f"✅ Prediction Successful!")
-            st.metric(label="Predicted Output", value=str(prediction[0]))
+            st.success("✅ Prediction Successful!")
+            st.metric(label="Result", value=str(prediction[0]))
             
         except Exception as e:
-            st.error(f"Mismatch Error: {e}")
-            # This will show us the order the model is begging for
-            import traceback
-            st.write("Check your Colab X_train.columns list!")
+            st.error(f"Final Attempt Error: {e}")
 
 st.markdown("---")
