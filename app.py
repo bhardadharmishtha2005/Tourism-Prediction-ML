@@ -55,28 +55,34 @@ else:
     rating = st.slider("Expected Rating", 1, 5, 4)
     season = "Summer"
 
-# 5. PREDICTION LOGIC (The Fixed Version)
+# 5. PREDICTION LOGIC
 if st.button("✨ Predict Best Visit Mode"):
     if model:
-        # 1. Prepare the input data (Must match your training columns)
-        # Note: You might need to Encode your inputs if your model expects numbers
-        # This is a simplified example:
-        input_data = pd.DataFrame({
-            'Rating': [rating],
-            'AttractionType': [attraction],
-            'CountryName': [country]
-        })
-        
-        # 2. Make the actual prediction
         try:
-            prediction = model.predict(input_data)
+            # We must create a DataFrame with EVERY column the model expects
+            # We use the user's input for some, and 'default' values for others
+            input_df = pd.DataFrame({
+                'Continent': [1],      # Default (e.g., Asia)
+                'Country': [1],        # Default
+                'VisitMode': [1],      # This is usually the Target, but if it was a feature:
+                'VisitMonth': [6],     # Default (June)
+                'VisitYear': [2024],   # Default
+                'Rating': [rating]      # From the Slider
+                # Add any other missing columns here!
+            })
+
+            # Make the prediction
+            prediction = model.predict(input_df)
             
             st.balloons()
             st.subheader("Analysis Result:")
-            st.metric(label="Predicted Visit Mode", value=str(prediction[0]))
+            # If your result is a number, we show it. 
+            # If you want to show a word, we can map it.
+            st.metric(label="Predicted Mode", value=str(prediction[0]))
+            
         except Exception as e:
-            st.error(f"Prediction failed: {e}")
-            st.warning("Hint: Your model might expect numbers (LabelEncoding).")
+            st.error(f"Error: {e}")
+            st.info("The model expects these exact columns: Continent, Country, VisitMode, VisitMonth, VisitYear, Rating")
     else:
         st.error("Model not loaded!")
 
