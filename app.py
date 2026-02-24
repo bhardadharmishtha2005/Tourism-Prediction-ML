@@ -55,14 +55,29 @@ else:
     rating = st.slider("Expected Rating", 1, 5, 4)
     season = "Summer"
 
-# 5. PREDICTION
+# 5. PREDICTION LOGIC (The Fixed Version)
 if st.button("✨ Predict Best Visit Mode"):
     if model:
-        st.balloons()
-        st.subheader("Analysis Result:")
-        # Displaying the result based on your model's target
-        st.metric(label="Predicted Visit Mode", value="Family / Group")
+        # 1. Prepare the input data (Must match your training columns)
+        # Note: You might need to Encode your inputs if your model expects numbers
+        # This is a simplified example:
+        input_data = pd.DataFrame({
+            'Rating': [rating],
+            'AttractionType': [attraction],
+            'CountryName': [country]
+        })
+        
+        # 2. Make the actual prediction
+        try:
+            prediction = model.predict(input_data)
+            
+            st.balloons()
+            st.subheader("Analysis Result:")
+            st.metric(label="Predicted Visit Mode", value=str(prediction[0]))
+        except Exception as e:
+            st.error(f"Prediction failed: {e}")
+            st.warning("Hint: Your model might expect numbers (LabelEncoding).")
     else:
-        st.error("Model not loaded. Cannot predict.")
+        st.error("Model not loaded!")
 
 st.markdown("---")
