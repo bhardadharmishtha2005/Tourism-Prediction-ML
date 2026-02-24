@@ -56,34 +56,31 @@ else:
     season = "Summer"
 
 # 5. PREDICTION LOGIC
-if st.button("✨ Predict Best Visit Mode"):
+if st.button("✨ Predict"):
     if model:
         try:
-            # We must create a DataFrame with EVERY column the model expects
-            # We use the user's input for some, and 'default' values for others
-            input_df = pd.DataFrame({
-                'Continent': [1],      # Default (e.g., Asia)
-                'Country': [1],        # Default
-                'VisitMode': [1],      # This is usually the Target, but if it was a feature:
-                'VisitMonth': [6],     # Default (June)
-                'VisitYear': [2024],   # Default
-                'Rating': [rating]      # From the Slider
-                # Add any other missing columns here!
-            })
-
+            # IMPORTANT: The order of these columns must be EXACTLY 
+            # as they were in your X_train during the Colab session.
+            input_dict = {
+                'Continent': [1], # You can change these to dynamic inputs later
+                'Country': [1],
+                'VisitMode': [1], 
+                'VisitMonth': [6], 
+                'VisitYear': [2024],
+                'Rating': [rating] # This comes from your slider
+            }
+            
+            # Convert to DataFrame
+            input_df = pd.DataFrame(input_dict)
+            
             # Make the prediction
             prediction = model.predict(input_df)
             
             st.balloons()
-            st.subheader("Analysis Result:")
-            # If your result is a number, we show it. 
-            # If you want to show a word, we can map it.
-            st.metric(label="Predicted Mode", value=str(prediction[0]))
+            st.success(f"The Predicted Result is: {prediction[0]}")
             
         except Exception as e:
-            st.error(f"Error: {e}")
-            st.info("The model expects these exact columns: Continent, Country, VisitMode, VisitMonth, VisitYear, Rating")
-    else:
-        st.error("Model not loaded!")
+            st.error(f"Prediction Error: {e}")
+            st.write("Current columns being sent to model:", list(input_dict.keys()))
 
 st.markdown("---")
