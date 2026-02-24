@@ -59,15 +59,15 @@ else:
 if st.button("✨ Predict"):
     if model:
         try:
-            # IMPORTANT: The order of these columns must be EXACTLY 
-            # as they were in your X_train during the Colab session.
+            # We must include ALL 7 columns in the EXACT order the model remembers
             input_dict = {
-                'Continent': [1], # You can change these to dynamic inputs later
-                'Country': [1],
-                'VisitMode': [1], 
-                'VisitMonth': [6], 
-                'VisitYear': [2024],
-                'Rating': [rating] # This comes from your slider
+                'Continent': [1],        # Column 0
+                'Country': [1],          # Column 1
+                'AttractionType': [1],   # Column 2 (THIS WAS MISSING)
+                'VisitMode': [1],        # Column 3
+                'VisitMonth': [6],       # Column 4
+                'VisitYear': [2024],     # Column 5
+                'Rating': [rating]       # Column 6
             }
             
             # Convert to DataFrame
@@ -77,10 +77,11 @@ if st.button("✨ Predict"):
             prediction = model.predict(input_df)
             
             st.balloons()
-            st.success(f"The Predicted Result is: {prediction[0]}")
+            st.success(f"✅ Prediction Successful!")
+            st.metric(label="Result", value=str(prediction[0]))
             
         except Exception as e:
-            st.error(f"Prediction Error: {e}")
-            st.write("Current columns being sent to model:", list(input_dict.keys()))
+            st.error(f"Logic Error: {e}")
+            st.write("The model needs 7 columns. We sent:", len(input_dict))
 
 st.markdown("---")
