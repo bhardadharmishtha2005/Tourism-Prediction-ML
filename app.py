@@ -60,31 +60,34 @@ import numpy as np
 import numpy as np
 
 # 5. PREDICTION LOGIC
-if st.button("✨ Predict"):
+if st.button("✨ Predict Best Visit Mode"):
     if model:
         try:
-            # We are sending exactly 6 features now
-            feature_values = [
-                1,             # 1. Continent
-                1,             # 2. Country
-                1,             # 3. VisitMode 
-                6,             # 4. VisitMonth
-                2024,          # 5. VisitYear
-                float(rating)  # 6. Rating (from slider)
-            ]
-            
-            # Convert to a simple array to bypass naming issues
+            feature_values = [1, 1, 1, 6, 2024, float(rating)]
             final_features = np.array([feature_values])
             
-            # 3. Predict
             prediction = model.predict(final_features)
+            result_code = int(prediction[0]) # This is the "1"
+
+            # --- TRANSLATION LOGIC ---
+            # Update these names to match your specific dataset!
+            mode_labels = {
+                0: "💼 Business",
+                1: "👪 Family / Group",
+                2: "👤 Solo",
+                3: "👫 Friends"
+            }
             
+            # Get the word based on the number, or show the number if not in list
+            final_result = mode_labels.get(result_code, f"Mode {result_code}")
+
             st.balloons()
             st.success("✅ Prediction Successful!")
-            st.metric(label="Predicted Result", value=str(prediction[0]))
+            
+            # Show the pretty word instead of the number
+            st.metric(label="Recommended Visit Mode", value=final_result)
             
         except Exception as e:
-            st.error(f"Almost there! Error: {e}")
-            st.write("The model saw 6 features during training. We are now sending 6.")
+            st.error(f"Error: {e}")
 
 st.markdown("---")
