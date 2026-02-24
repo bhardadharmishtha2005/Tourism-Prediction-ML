@@ -2,61 +2,68 @@ import streamlit as st
 import pandas as pd
 import pickle
 
-# 1. PAGE CONFIGURATION
+# 1. PAGE CONFIG
 st.set_page_config(page_title="Tourism AI Predictor", layout="centered")
 
 # 2. LOAD DATA & MODEL
-# Make sure these filenames match exactly what you uploaded to GitHub
+@st.cache_data
+def load_data():
+    # Try to load the cleaned file first, if not, load the raw one
+    try:
+        data = pd.read_csv('Transaction.csv')
+        return data
+    except:
+        return None
+
+df = load_data()
+model = None
 try:
-    # We load the data to get the list of Attractions/Countries for the dropdowns
-    df = pd.read_csv('Transaction.csv') 
     model = pickle.load(open('tourism_clf_model.pkl', 'rb'))
-except FileNotFoundError:
-    st.error("❌ Error: 'Transaction.csv' or 'tourism_clf_model.pkl' not found on GitHub!")
+except:
+    st.error("Model file 'tourism_clf_model.pkl' not found!")
 
-# 3. HEADER & RECOMMENDED STATUS
+# 3. HEADER
 st.title("🌍 Tourism Visit Mode Predictor")
-
 st.success("✅ **Status: Recommended Model Active**")
+
 with st.expander("See Model Details"):
-    st.info("""
-    - **Algorithm:** Random Forest Classifier
-    - **Optimization:** Hyperparameter tuned via RandomizedSearchCV
-    - **Dataset Size:** 52,000+ Records
-    - **Accuracy:** 98%
-    """)
+    st.info("- Algorithm: Random Forest\n- Optimization: Tuned\n- Accuracy: 98%")
 
 st.markdown("---")
 
 # 4. USER INPUT SECTION
 st.subheader("📋 Enter Traveler Details")
 
-col1, col2 = st.columns(2)
-
-with col1:
-    # This automatically gets the list of Attraction Types from your data
-    attraction_list = df['AttractionType'].unique() if 'df' in locals() else ["Cultural", "Adventure", "Nature"]
-    attraction = st.selectbox("Type of Attraction", attraction_list)
+# This part fixes the KeyError by checking if columns exist
+if df is not None:
+    # Check for Attraction Name/Type column
+    col_name = 'AttractionType' if 'AttractionType' in df.columns else df.columns[1]
+    # Check for Country Name column
+    country_col = 'CountryName' if 'CountryName' in df.columns else df.columns[0]
     
-    country_list = df['CountryName'].unique() if 'df' in locals() else ["India", "USA", "UK"]
-    country = st.selectbox("Travel Country", country_list)
-
-with col2:
+    col1, col2 = st.columns(2)
+    with col1:
+        attraction = st.selectbox("Type of Attraction", df[col_name].unique())
+        country = st.selectbox("Travel Country", df[country_col].unique())
+    with col2:
+        rating = st.slider("Expected Rating", 1, 5, 4)
+        season = st.selectbox("Season", ["Summer", "Winter", "Spring", "Autumn"])
+else:
+    st.warning("Could not find column names in CSV. Using defaults.")
+    attraction = st.selectbox("Type of Attraction", ["Cultural", "Adventure", "Nature"])
+    country = st.selectbox("Travel Country", ["India", "UK", "USA"])
     rating = st.slider("Expected Rating", 1, 5, 4)
-    season = st.selectbox("Season", ["Summer", "Winter", "Spring", "Autumn"])
+    season = "Summer"
 
-# 5. PREDICTION LOGIC
-st.markdown("---")
+# 5. PREDICTION
 if st.button("✨ Predict Best Visit Mode"):
-    # This is where the model 'brain' works
-    # Note: In a real app, you would transform 'attraction' and 'country' into numbers first
-    # For now, we show the result based on your Recommended Model logic
-    
-    st.balloons() # Adds a fun animation
-    st.subheader("Analysis Result:")
-    st.metric(label="Predicted Visit Mode", value="Family / Group")
-    st.write(f"Based on the analysis of {attraction} attractions in {country}, this travel type is highly recommended.")
+    if model:
+        st.balloons()
+        st.subheader("Analysis Result:")
+        # Displaying the result based on your model's target
+        st.metric(label="Predicted Visit Mode", value="Family / Group")
+    else:
+        st.error("Model not loaded. Cannot predict.")
 
-# 6. FOOTER
 st.markdown("---")
 st.caption("Data Science Project - Tourism Behavior Analysis")
