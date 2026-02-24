@@ -33,12 +33,3 @@ with col2:
 st.markdown("---")
 st.subheader("Project Insights")
 st.write("This model was optimized using RandomizedSearchCV for 98% reliability.")
-
-import matplotlib.pyplot as plt
-import seaborn as sns
-
-st.subheader("Market Trends for this Attraction")
-fig, ax = plt.subplots()
-# Example: Showing rating distribution for the selected attraction type
-sns.histplot(df[df['AttractionType'] == attraction]['Rating'], kde=True, ax=ax)
-st.pyplot(fig)
